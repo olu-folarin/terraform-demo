@@ -144,13 +144,11 @@ jobs:
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
-      # Configure AWS credentials using OIDC (recommended)
-      # Uncomment when OIDC is configured
-      # - name: Configure AWS Credentials
-      #   uses: aws-actions/configure-aws-credentials@v4
-      #   with:
-      #     role-to-assume: arn:aws:iam::ACCOUNT_ID:role/github-actions-role
-      #     aws-region: ${{ env.AWS_REGION }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::433387214445:role/github-actions-terraform-demo
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Terraform Init
         run: terraform init -backend=false
@@ -208,13 +206,11 @@ jobs:
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
-      # Configure AWS credentials using OIDC (recommended)
-      # Uncomment when OIDC is configured
-      # - name: Configure AWS Credentials
-      #   uses: aws-actions/configure-aws-credentials@v4
-      #   with:
-      #     role-to-assume: arn:aws:iam::ACCOUNT_ID:role/github-actions-role
-      #     aws-region: ${{ env.AWS_REGION }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::433387214445:role/github-actions-terraform-demo
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Download Plan
         uses: actions/download-artifact@v4
@@ -225,7 +221,4 @@ jobs:
         run: terraform init -backend=false
 
       - name: Terraform Apply
-        run: |
-          echo "⚠️ Apply is disabled until AWS credentials are configured"
-          echo "Uncomment the apply command below when ready:"
-          echo "# terraform apply -auto-approve tfplan"
+        run: terraform apply -auto-approve tfplan
