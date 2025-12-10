@@ -117,16 +117,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::433387214445:role/github-actions-terraform-demo
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Generate Plan JSON
+        run: |
+          terraform init -backend=false
+          terraform plan -out=tfplan
+          terraform show -json tfplan > plan.json
+
       - name: Validate Terraform Tags
-        uses: olu-folarin/terraform-tag-validator@main
+        uses: olu-folarin/terraform-tag-validator@feature/plan-file-input
         with:
-          terraform_directory: .
+          plan_file: plan.json
           config_file: ./tags-config.yml
           required_tags: |
             department
