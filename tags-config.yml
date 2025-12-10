@@ -1,0 +1,42 @@
+# Tag Validation Configuration for terraform-demo
+# Used by olu-folarin/terraform-tag-validator
+
+required_tags:
+  department:
+    description: "Department owning the resource"
+    allowed_values:
+      - engineering
+      - product
+      - platform
+      - data
+      - security
+
+  service:
+    description: "Service or application name"
+    pattern: "^[a-z0-9-]+$"
+    pattern_description: "Lowercase letters, numbers, and hyphens only"
+
+  contact:
+    description: "Team contact with email"
+    pattern: "^[A-Za-z ]+: [a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+    pattern_description: "Format: 'Team Name: email@example.com'"
+
+  production:
+    description: "Whether this is a production resource"
+    allowed_values:
+      - "true"
+      - "false"
+
+  domain:
+    description: "Business domain"
+
+  environment:
+    description: "Deployment environment"
+    allowed_values:
+      - production
+      - staging
+      - test
+      - development
+
+# Resources excluded from tag validation
+exclude_resources: []
