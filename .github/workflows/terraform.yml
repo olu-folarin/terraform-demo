@@ -117,6 +117,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::433387214445:role/github-actions-terraform-demo
+          aws-region: ${{ env.AWS_REGION }}
+
       - name: Validate Terraform Tags
         uses: olu-folarin/terraform-tag-validator@main
         with:
