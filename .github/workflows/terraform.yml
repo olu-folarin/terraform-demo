@@ -156,17 +156,20 @@ jobs:
           script: |
             const outcome = '${{ steps.tags.outcome }}';
             const passed = outcome === 'success';
+            const resourcesChecked = '${{ steps.tags.outputs.resources_checked }}' || '0';
+            const violations = `${{ steps.tags.outputs.violations }}`;
             
             let body = `## 🏷️ Tag Validation Results\n\n`;
-            body += `| Check | Status |\n|-------|--------|\n`;
-            body += `| Required Tags | ${passed ? '✅ Passed' : '❌ Failed'} |\n\n`;
+            body += `| Check | Status | Resources |\n|-------|--------|----------|\n`;
+            body += `| Required Tags | ${passed ? '✅ Passed' : '❌ Failed'} | ${resourcesChecked} checked |\n\n`;
             
             if (passed) {
-              body += `All resources have the required tags for cost allocation and governance.`;
+              body += `✅ All resources have the required tags for cost allocation and governance.`;
             } else {
-              body += `⚠️ **Some resources are missing required tags.**\n\n`;
-              body += `📋 [View workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) → Click **Validate Tags** job for details.\n\n`;
-              body += `Required tags: \`department\`, \`service\`, \`contact\`, \`production\`, \`domain\`, \`environment\``;
+              body += `### ⚠️ Missing Tags\n\n`;
+              body += `The following resources are missing required tags:\n\n`;
+              body += `\`\`\`\n${violations || 'See job logs for details'}\n\`\`\`\n\n`;
+              body += `**Required tags:** \`department\`, \`service\`, \`contact\`, \`production\`, \`domain\`, \`environment\``;
             }
             
             github.rest.issues.createComment({
@@ -178,7 +181,9 @@ jobs:
 
       - name: Fail if tag validation failed
         if: steps.tags.outcome != 'success'
-        run: exit 1
+        run: |
+          echo "❌ Tag validation failed - missing required tags on some resources."
+          exit 1
 
   # Stage 4: Terraform Plan (runs in parallel with security and tags)
   plan:
