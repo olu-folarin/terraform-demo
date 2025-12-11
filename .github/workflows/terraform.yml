@@ -135,6 +135,7 @@ jobs:
           terraform show -json tfplan > plan.json
 
       - name: Validate Terraform Tags
+        id: tags
         uses: olu-folarin/terraform-tag-validator@feature/plan-file-input
         with:
           plan_file: plan.json
@@ -146,6 +147,23 @@ jobs:
             production
             domain
             environment
+
+      - name: Post Tag Validation Results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = `## 🏷️ Tag Validation Results\n\n` +
+              `| Check | Status |\n|-------|--------|\n` +
+              `| Required Tags | ✅ Passed |\n\n` +
+              `All resources have the required tags for cost allocation and governance.`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
 
   # Stage 4: Terraform Plan
   plan:
