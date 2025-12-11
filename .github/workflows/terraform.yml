@@ -136,6 +136,7 @@ jobs:
 
       - name: Validate Terraform Tags
         id: tags
+        continue-on-error: true
         uses: olu-folarin/terraform-tag-validator@feature/plan-file-input
         with:
           plan_file: plan.json
@@ -153,10 +154,20 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const body = `## 🏷️ Tag Validation Results\n\n` +
-              `| Check | Status |\n|-------|--------|\n` +
-              `| Required Tags | ✅ Passed |\n\n` +
-              `All resources have the required tags for cost allocation and governance.`;
+            const outcome = '${{ steps.tags.outcome }}';
+            const passed = outcome === 'success';
+            
+            let body = `## 🏷️ Tag Validation Results\n\n`;
+            body += `| Check | Status |\n|-------|--------|\n`;
+            body += `| Required Tags | ${passed ? '✅ Passed' : '❌ Failed'} |\n\n`;
+            
+            if (passed) {
+              body += `All resources have the required tags for cost allocation and governance.`;
+            } else {
+              body += `⚠️ **Some resources are missing required tags.**\n\n`;
+              body += `Review the [Validate Tags job logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.\n\n`;
+              body += `Required tags: \`department\`, \`service\`, \`contact\`, \`production\`, \`domain\`, \`environment\``;
+            }
             
             github.rest.issues.createComment({
               issue_number: context.issue.number,
@@ -164,6 +175,10 @@ jobs:
               repo: context.repo.repo,
               body: body
             });
+
+      - name: Fail if tag validation failed
+        if: steps.tags.outcome != 'success'
+        run: exit 1
 
   # Stage 4: Terraform Plan
   plan:
