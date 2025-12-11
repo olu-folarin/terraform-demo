@@ -23,9 +23,9 @@ provider "aws" {
 
   default_tags {
     tags = {
-      Project     = "terraform-demo"
-      ManagedBy   = "terraform"
-      Repository  = "terraform-demo"
+      Project    = "terraform-demo"
+      ManagedBy  = "terraform"
+      Repository = "terraform-demo"
     }
   }
 }
