@@ -180,11 +180,11 @@ jobs:
         if: steps.tags.outcome != 'success'
         run: exit 1
 
-  # Stage 4: Terraform Plan
+  # Stage 4: Terraform Plan (runs in parallel with security and tags)
   plan:
     name: Terraform Plan
     runs-on: ubuntu-latest
-    needs: [security, tags]
+    needs: lint
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -240,11 +240,11 @@ jobs:
           name: tfplan
           path: tfplan
 
-  # Stage 5: Apply (only on main branch merge)
+  # Stage 5: Apply (only on main branch merge, requires all checks to pass)
   apply:
     name: Terraform Apply
     runs-on: ubuntu-latest
-    needs: plan
+    needs: [security, tags, plan]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment: staging
     steps:
