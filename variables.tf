@@ -27,3 +27,9 @@ variable "contact" {
   type        = string
   default     = "Platform Team: platform@example.com"
 }
+
+variable "tags_test" {
+  description = "Test variable to trigger pipeline"
+  type        = string
+  default     = "pipeline-test"
+}
