@@ -165,7 +165,7 @@ jobs:
               body += `All resources have the required tags for cost allocation and governance.`;
             } else {
               body += `⚠️ **Some resources are missing required tags.**\n\n`;
-              body += `Review the [Validate Tags job logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.\n\n`;
+              body += `📋 [View workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) → Click **Validate Tags** job for details.\n\n`;
               body += `Required tags: \`department\`, \`service\`, \`contact\`, \`production\`, \`domain\`, \`environment\``;
             }
             
