@@ -86,3 +86,31 @@ resource "aws_s3_bucket_public_access_block" "logs_bucket" {
 resource "random_id" "suffix" {
   byte_length = 4
 }
+
+# ============================================
+# TEST SCENARIOS FOR TAG VALIDATION
+# ============================================
+
+# Scenario 1: Missing tags (should FAIL validation)
+resource "aws_s3_bucket" "missing_tags_bucket" {
+  bucket = "${var.project_name}-missing-tags-${random_id.suffix.hex}"
+
+  tags = {
+    Name       = "bucket-with-missing-tags"
+    department = "platform"
+    # Missing: service, environment, production, contact, domain
+  }
+}
+
+# Scenario 2: Partial tags (should FAIL validation)
+resource "aws_s3_bucket" "partial_tags_bucket" {
+  bucket = "${var.project_name}-partial-${random_id.suffix.hex}"
+
+  tags = {
+    Name        = "bucket-with-partial-tags"
+    department  = "platform"
+    service     = "test-service"
+    environment = "staging"
+    # Missing: production, contact, domain
+  }
+}
