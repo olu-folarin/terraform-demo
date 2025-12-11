@@ -136,7 +136,7 @@ jobs:
 
       - name: Validate Terraform Tags
         id: tags
-        uses: olu-folarin/terraform-tag-validator@feature/plan-file-input
+        uses: olu-folarin/terraform-tag-validator@v1.0.0
         continue-on-error: true
         with:
           plan_file: plan.json
