@@ -136,8 +136,8 @@ jobs:
 
       - name: Validate Terraform Tags
         id: tags
-        continue-on-error: true
         uses: olu-folarin/terraform-tag-validator@feature/plan-file-input
+        continue-on-error: true
         with:
           plan_file: plan.json
           config_file: ./tags-config.yml
@@ -156,19 +156,16 @@ jobs:
           script: |
             const outcome = '${{ steps.tags.outcome }}';
             const passed = outcome === 'success';
-            const resourcesChecked = '${{ steps.tags.outputs.resources_checked }}' || '0';
-            const violations = `${{ steps.tags.outputs.violations }}`;
             
             let body = `## 🏷️ Tag Validation Results\n\n`;
-            body += `| Check | Status | Resources |\n|-------|--------|----------|\n`;
-            body += `| Required Tags | ${passed ? '✅ Passed' : '❌ Failed'} | ${resourcesChecked} checked |\n\n`;
+            body += `| Check | Status |\n|-------|--------|\n`;
+            body += `| Required Tags | ${passed ? '✅ Passed' : '❌ Failed'} |\n\n`;
             
             if (passed) {
               body += `✅ All resources have the required tags for cost allocation and governance.`;
             } else {
-              body += `### ⚠️ Missing Tags\n\n`;
-              body += `The following resources are missing required tags:\n\n`;
-              body += `\`\`\`\n${violations || 'See job logs for details'}\n\`\`\`\n\n`;
+              body += `⚠️ **Some resources are missing required tags.**\n\n`;
+              body += `📋 Check the **Validate Terraform Tags** step above for the full violation details.\n\n`;
               body += `**Required tags:** \`department\`, \`service\`, \`contact\`, \`production\`, \`domain\`, \`environment\``;
             }
             
@@ -182,7 +179,18 @@ jobs:
       - name: Fail if tag validation failed
         if: steps.tags.outcome != 'success'
         run: |
-          echo "❌ Tag validation failed - missing required tags on some resources."
+          echo ""
+          echo "========================================"
+          echo "❌ TAG VALIDATION FAILED"
+          echo "========================================"
+          echo ""
+          echo "⬆️  See the 'Validate Terraform Tags' step above for:"
+          echo "   - Which resources are missing tags"
+          echo "   - Which file and line number"
+          echo "   - Which specific tags are missing"
+          echo ""
+          echo "Required tags: department, service, contact, production, domain, environment"
+          echo "========================================"
           exit 1
 
   # Stage 4: Terraform Plan (runs in parallel with security and tags)
